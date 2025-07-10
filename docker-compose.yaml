@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=home
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "postgresql://postgres:123456@db:5432/home?sslmode=disable", "up"]
+    links:
+      - db
+    depends_on:
+      - db

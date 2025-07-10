@@ -1,0 +1,19 @@
+# IDE files
+.vscode
+.DS_Store
+.idea
+
+# Dependencies
+vendor
+
+# Test
+*.out
+
+# Misc
+.env
+build/
+tmp/
+.env
+__debug_bin*
+
+mep-api-core
