@@ -10,10 +10,8 @@ vendor
 *.out
 
 # Misc
-.env
 build/
 tmp/
-.env
 __debug_bin*
 
 mep-api-core
