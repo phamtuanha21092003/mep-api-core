@@ -34,8 +34,13 @@ func GinMiddleware(app *gin.Engine) {
 	app.Use(func(c *gin.Context) {
 		c.Next()
 
+		last := c.Errors.Last()
+		if last == nil || last.Err == nil {
+			return
+		}
+
 		var appErr *base.AppError
-		err := c.Errors.Last().Err
+		err := last.Err
 
 		if errors.As(err, &appErr) {
 			appErr := err.(*base.AppError)

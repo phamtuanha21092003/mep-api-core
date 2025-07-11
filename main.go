@@ -4,20 +4,37 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
+	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/middleware"
+	"github.com/phamtuanha21092003/mep-api-core/platform/database"
 )
 
+// Inital config application
+func init() {
+	godotenv.Load()
+	env := os.Getenv("APP_ENV")
+	config.AppConfig = config.NewConfiguration(env)
+}
+
 func main() {
+	config.LoadAllConfig()
+
+	if database.SqlxConn == nil {
+		database.NewDatabaseConn()
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	router := gin.Default()
+	router := gin.New()
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: router,
