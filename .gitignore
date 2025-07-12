@@ -15,3 +15,6 @@ tmp/
 __debug_bin*
 
 mep-api-core
+
+# docker vol local
+data
