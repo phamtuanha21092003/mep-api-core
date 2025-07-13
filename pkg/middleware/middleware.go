@@ -2,11 +2,14 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/phamtuanha21092003/mep-api-core/app/base"
+	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
 )
 
 const (
@@ -14,7 +17,7 @@ const (
 )
 
 // GinMiddleware is apply to engine gin
-func GinMiddleware(app *gin.Engine) {
+func GinMiddleware(app *gin.Engine, config *config.Config) {
 	// apply middleware cors
 	app.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -28,6 +31,27 @@ func GinMiddleware(app *gin.Engine) {
 
 		c.Next()
 	})
+
+	if config.GetBool("MIDDLEWARE_GIN_LOGGING_ENABLED") {
+		app.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+			return fmt.Sprintf("[gateway] %s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+				param.ClientIP,
+				param.TimeStamp.Format(time.RFC1123),
+				param.Method,
+				param.Path,
+				param.Request.Proto,
+				param.StatusCode,
+				param.Latency,
+				param.Request.UserAgent(),
+				param.ErrorMessage,
+			)
+		}),
+		)
+	}
+
+	if config.GetBool("MIDDLEWARE_GIN_RECOVER_ENABLED") {
+		app.Use(gin.Recovery())
+	}
 
 	// TODO: add logging to this middleware
 	// apply middleware error handling

@@ -40,7 +40,7 @@ func main() {
 		Handler: router,
 	}
 
-	middleware.GinMiddleware(router)
+	middleware.GinMiddleware(router, config.AppConfig)
 
 	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
