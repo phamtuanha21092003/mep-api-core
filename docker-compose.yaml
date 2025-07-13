@@ -20,3 +20,28 @@ services:
       - db
     depends_on:
       - db
+
+  gateway:
+    container_name: gateway
+    build:
+      context: .
+      dockerfile: ./cmd/server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+      - APP_READ_TIMEOUT=30
+      - APP_DEBUG=false
+      - APP_ENV=dev
+      - DB_URI=postgres://postgres:123456@db:5432/home?sslmode=disable
+      - DB_DEBUG=true
+      - DB_MAX_OPEN_CONNECTIONS=3
+      - DB_MAX_IDLE_CONNECTIONS=1
+      - DB_MAX_LIFETIME_CONNECTIONS=10
+      - DB_MAX_IDLETIME_CONNECTIONS=10
+      - JWT_SECRET_KEY=MzMxMjIxZDIyY2U5ZjhkMzNmZTM4YTlj
+      - AUTH_JWT_EXPIRY=1440
+      - AUTH_JWT_REFRESH_EXPIRY=43200
+    depends_on:
+      - db

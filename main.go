@@ -1,19 +1,14 @@
 package main
 
 import (
-	"context"
 	"log"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/spf13/cobra"
 
+	"github.com/phamtuanha21092003/mep-api-core/cmd/server"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
-	"github.com/phamtuanha21092003/mep-api-core/pkg/middleware"
 	"github.com/phamtuanha21092003/mep-api-core/platform/database"
 )
 
@@ -25,46 +20,40 @@ func init() {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	var runApp = &cobra.Command{
+		Use:   "runserver [string to print]",
+		Short: "Run gin app",
+		Run: func(cmd *cobra.Command, args []string) {
+			runGateway()
+		},
+	}
+
+	var rootCmd = &cobra.Command{
+		Use:   "app",
+		Short: "A generator for Cobra based Applications",
+		Long: `Cobra is a CLI library for Go that empowers applications.
+				This application is a tool to generate the needed files
+				to quickly create a Cobra application.`,
+	}
+	rootCmd.AddCommand(runApp)
+	rootCmd.Execute()
+
+}
+
+// run gateway is run server
+func runGateway() {
 	config.LoadAllConfig()
 
 	if database.SqlxConn == nil {
 		database.NewDatabaseConn()
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	router := gin.New()
-	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: router,
-	}
-
-	middleware.GinMiddleware(router, config.AppConfig)
-
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
-		}
-	}()
-
-	<-ctx.Done()
-
-	stop()
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	server := server.NewServer(database.SqlxConn)
+	if err := server.RunServer(); err != nil {
 		log.Fatal("Server forced to shutdown: ", err)
 	}
 
 	log.Println("Server exiting")
-
 }

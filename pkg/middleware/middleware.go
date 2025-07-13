@@ -33,19 +33,20 @@ func GinMiddleware(app *gin.Engine, config *config.Config) {
 	})
 
 	if config.GetBool("MIDDLEWARE_GIN_LOGGING_ENABLED") {
-		app.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-			return fmt.Sprintf("[gateway] %s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
-				param.ClientIP,
-				param.TimeStamp.Format(time.RFC1123),
-				param.Method,
-				param.Path,
-				param.Request.Proto,
-				param.StatusCode,
-				param.Latency,
-				param.Request.UserAgent(),
-				param.ErrorMessage,
-			)
-		}),
+		app.Use(
+			gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+				return fmt.Sprintf("[gateway] %s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
+					param.ClientIP,
+					param.TimeStamp.Format(time.RFC1123),
+					param.Method,
+					param.Path,
+					param.Request.Proto,
+					param.StatusCode,
+					param.Latency,
+					param.Request.UserAgent(),
+					param.ErrorMessage,
+				)
+			}),
 		)
 	}
 
