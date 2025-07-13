@@ -14,6 +14,6 @@ CREATE TABLE "user" (
     is_active bool NOT NULL
 );
 
-CREATE INDEX idx_username_like ON "user" USING btree (username varchar_pattern_ops);
+CREATE INDEX idx_username_like ON "user" USING btree (username varchar_pattern_ops) WHERE deleted_at IS NULL;
 
 CREATE UNIQUE INDEX idx_unique_email ON "user" (email) WHERE deleted_at IS NULL;
