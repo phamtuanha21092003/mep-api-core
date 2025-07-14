@@ -39,9 +39,20 @@ func NewServer(db *database.SqlxDatabase) *Server {
 
 	transactionManager := base.NewTxManagerSqlx(db.DB)
 
-	repo := dependencies.InitRepositories(db, logger, transactionManager)
+	repos := dependencies.InitRepositories(db, logger, transactionManager)
 
-	return &Server{gin: engine, sqlx: db, logger: logger, repositories: *repo}
+	services := dependencies.InitServices(repos, logger)
+
+	controllers := dependencies.InitController(services)
+
+	return &Server{
+		gin:          engine,
+		sqlx:         db,
+		logger:       logger,
+		repositories: *repos,
+		services:     *services,
+		controllers:  *controllers,
+	}
 }
 
 func (server *Server) RunServer() error {
