@@ -20,11 +20,13 @@ type (
 		tableName string
 
 		Sqlx *database.SqlxDatabase
+
+		TransactionManager ITransactionManagerSqlx
 	}
 )
 
-func NewBaseRepositorySqlx[T, ID any](db *database.SqlxDatabase, tableName string) *BaseRepositorySqlx[T, ID] {
-	repo := &BaseRepositorySqlx[T, ID]{Sqlx: db, tableName: tableName}
+func NewBaseRepositorySqlx[T, ID any](db *database.SqlxDatabase, tableName string, transactionManagerSqlx ITransactionManagerSqlx) *BaseRepositorySqlx[T, ID] {
+	repo := &BaseRepositorySqlx[T, ID]{Sqlx: db, tableName: tableName, TransactionManager: transactionManagerSqlx}
 	// check compile-time with type assertion
 	var _ IBaseRepositorySqlx[T, ID] = repo
 

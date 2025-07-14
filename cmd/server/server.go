@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/phamtuanha21092003/mep-api-core/app/base"
 	"github.com/phamtuanha21092003/mep-api-core/cmd/server/dependencies"
 	"github.com/phamtuanha21092003/mep-api-core/cmd/server/router"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
@@ -24,7 +25,7 @@ type Server struct {
 	gin          *gin.Engine
 	sqlx         *database.SqlxDatabase
 	logger       *logger.Logger
-	controller   *dependencies.Controllers
+	controllers  dependencies.Controllers
 	repositories dependencies.Repositories
 	services     dependencies.Services
 }
@@ -36,7 +37,11 @@ func NewServer(db *database.SqlxDatabase) *Server {
 	engine := gin.New()
 	middleware.GinMiddleware(engine, config.AppConfig)
 
-	return &Server{gin: engine, sqlx: db, logger: logger}
+	transactionManager := base.NewTxManagerSqlx(db.DB)
+
+	repo := dependencies.InitRepositories(db, logger, transactionManager)
+
+	return &Server{gin: engine, sqlx: db, logger: logger, repositories: *repo}
 }
 
 func (server *Server) RunServer() error {

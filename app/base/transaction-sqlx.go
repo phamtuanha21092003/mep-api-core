@@ -10,7 +10,7 @@ import (
 
 // ITransactionManagerSqlx wraps an atomic unit of work.
 type ITransactionManagerSqlx interface {
-	Do(ctx context.Context, fn func(*sqlx.Tx) (interface{}, error)) (interface{}, error)
+	Do(ctx context.Context, fn func(tx *sqlx.Tx) (any, error)) (any, error)
 }
 
 // txManagerSqlx is the concrete sqlx implementation.
@@ -18,8 +18,8 @@ type txManagerSqlx struct {
 	db *sqlx.DB
 }
 
-// NewTxManager creates a Transaction
-func NewTxManager(db *sqlx.DB) ITransactionManagerSqlx {
+// NewTxManagerSqlx creates a Transaction
+func NewTxManagerSqlx(db *sqlx.DB) ITransactionManagerSqlx {
 	return &txManagerSqlx{db: db}
 }
 
