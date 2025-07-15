@@ -15,7 +15,7 @@ import (
 
 type IUserRepository interface {
 	base.IBaseRepositorySqlx[model.User, uuid.UUID]
-	Register(ctx context.Context, payload *dto.RegisterUserDto) (string, error)
+	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
 }
 
 type UserRepository struct {
@@ -30,22 +30,25 @@ func NewUserRepository(db *database.SqlxDatabase, logger *logger.Logger, transac
 	}
 }
 
-func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.RegisterUserDto) (string, error) {
-	id, err := userRepo.TransactionManager.Do(ctx, func(tx *sqlx.Tx) (any, error) {
+func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error) {
+	return userRepo.TransactionManager.Do(ctx, func(tx *sqlx.Tx) (any, error) {
 		query := `
-			INSERT INTO "user" (id, email, username, password, first_name, last_name, is_superuser, is_active, created_at, updated_at)
-			VALUES (:id, :email, :username, :password, :first_name, :last_name, :is_superuser, :is_active, :created_at, :updated_at)
+			INSERT INTO "user" (id, email, username, password, first_name, last_name, is_superuser, is_active)
+			VALUES (:id, :email, :username, :password, :first_name, :last_name, :is_superuser, :is_active)
 			RETURNING id
 		`
 
-		err := tx.QueryRowxContext(ctx, query, payload).Scan(payload.ID)
+		stmt, err := tx.PrepareNamedContext(ctx, query)
 		if err != nil {
+			return "", err
+		}
+		defer stmt.Close()
+
+		if err := stmt.GetContext(ctx, &payload.ID, payload); err != nil {
 			return "", err
 		}
 
 		return payload.ID, nil
-
 	})
 
-	return id.(string), err
 }

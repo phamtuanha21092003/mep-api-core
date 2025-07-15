@@ -38,6 +38,7 @@ type Columns struct {
 
 var columnDB = map[string][]*Columns{}
 
+// TODO: not allow logging database query in production
 // NewDatabaseConn to get connection to postgresql
 func NewDatabaseConn() *SqlxDatabase {
 	sqlxOnce.Do(func() {

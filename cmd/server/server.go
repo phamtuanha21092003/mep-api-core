@@ -90,5 +90,5 @@ func (server *Server) RunServer() error {
 
 func (server *Server) setupRoutes() {
 	router.GeneralRouter(server.gin)
-	router.UserRouter(server.gin)
+	router.UserRouter(server.gin, server.controllers.UserController)
 }

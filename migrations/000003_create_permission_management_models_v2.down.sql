@@ -1,0 +1,3 @@
+ALTER TABLE role DROP COLUMN IF EXISTS description;
+
+ALTER TABLE permission DROP COLUMN IF EXISTS description;
