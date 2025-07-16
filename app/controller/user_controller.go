@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/phamtuanha21092003/mep-api-core/app/base"
@@ -54,7 +56,7 @@ func (userContr *UserController) Login() gin.HandlerFunc {
 
 		accessToken, refreshToken, err := userSer.Login(c.Request.Context(), dto)
 		if err != nil {
-			c.Error(base.BadRequest(err))
+			c.Error(base.BadRequest(errors.New("Email or password is invalid!")))
 			return
 		}
 
