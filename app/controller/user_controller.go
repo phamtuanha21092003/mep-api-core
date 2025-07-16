@@ -11,6 +11,7 @@ import (
 
 type IUserController interface {
 	Register() gin.HandlerFunc
+	Login() gin.HandlerFunc
 }
 
 type UserController struct {
@@ -38,6 +39,37 @@ func (userContr *UserController) Register() gin.HandlerFunc {
 
 		c.JSON(200, gin.H{
 			"userId": userId,
+		})
+	}
+}
+
+func (userContr *UserController) Login() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		dto, ok := utils.GetBodyRequest[dto.LoginUserDto](c)
+		if !ok {
+			return
+		}
+
+		userSer := userContr.userSer
+
+		accessToken, refreshToken, err := userSer.Login(c.Request.Context(), dto)
+		if err != nil {
+			c.Error(base.BadRequest(err))
+			return
+		}
+
+		c.SetCookie(
+			"refresh_token",
+			refreshToken,
+			60*60*24*7,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(200, gin.H{
+			"userId": accessToken,
 		})
 	}
 }

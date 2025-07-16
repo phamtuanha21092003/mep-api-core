@@ -10,4 +10,5 @@ func UserRouter(app *gin.Engine, userController controller.IUserController) {
 	userGroup := app.Group("/api/v1/users")
 
 	userGroup.POST("/register", userController.Register())
+	userGroup.POST("/login", userController.Login())
 }

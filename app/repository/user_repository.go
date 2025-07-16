@@ -16,6 +16,7 @@ import (
 type IUserRepository interface {
 	base.IBaseRepositorySqlx[model.User, uuid.UUID]
 	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
+	GetUserLogin(ctx context.Context, email string) (*model.User, error)
 }
 
 type UserRepository struct {
@@ -34,8 +35,8 @@ func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.Regis
 	return userRepo.TransactionManager.Do(ctx, func(tx *sqlx.Tx) (any, error) {
 		query := `
 			INSERT INTO "user" (id, email, username, password, first_name, last_name, is_superuser, is_active)
-			VALUES (:id, :email, :username, :password, :first_name, :last_name, :is_superuser, :is_active)
-			RETURNING id
+			VALUES (:id, :email, :username, :password, :first_name, :last_name, false, false)
+			RETURNING id;
 		`
 
 		stmt, err := tx.PrepareNamedContext(ctx, query)
@@ -50,5 +51,15 @@ func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.Regis
 
 		return payload.ID, nil
 	})
+}
 
+func (userRepo *UserRepository) GetUserLogin(ctx context.Context, email string) (*model.User, error) {
+	query := `SELECT u.id, u.password, u.role_id FROM "user" u WHERE u.email = $1;`
+
+	var user model.User
+	if err := userRepo.Sqlx.DB.GetContext(ctx, &user, query, email); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
