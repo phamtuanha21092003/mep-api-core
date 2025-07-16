@@ -6,9 +6,12 @@ import (
 )
 
 type Services struct {
-	userService service.IUserService
+	userService  service.IUserService
+	tokenService service.ITokenService
 }
 
 func InitServices(repo *Repositories, logger *logger.Logger) *Services {
-	return &Services{userService: service.NewUserService(repo.userRepo, logger)}
+	tokenSvc := service.NewTokenService(logger)
+
+	return &Services{userService: service.NewUserService(repo.userRepo, tokenSvc, logger), tokenService: tokenSvc}
 }

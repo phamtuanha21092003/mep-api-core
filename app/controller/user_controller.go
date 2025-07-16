@@ -63,7 +63,7 @@ func (userContr *UserController) Login() gin.HandlerFunc {
 		c.SetCookie(
 			"refresh_token",
 			refreshToken,
-			60*60*24*7,
+			60*60*24*30,
 			"/",
 			"",
 			true,

@@ -54,7 +54,7 @@ func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.Regis
 }
 
 func (userRepo *UserRepository) GetUserLogin(ctx context.Context, email string) (*model.User, error) {
-	query := `SELECT u.id, u.password, u.role_id FROM "user" u WHERE u.email = $1;`
+	query := `SELECT u.id, u.email, u.username,  u.password, u.role_id, u.token_version FROM "user" u WHERE u.email = $1;`
 
 	var user model.User
 	if err := userRepo.Sqlx.DB.GetContext(ctx, &user, query, email); err != nil {

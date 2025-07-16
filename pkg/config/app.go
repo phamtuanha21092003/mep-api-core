@@ -16,11 +16,12 @@ type App struct {
 	Debug       bool
 	ReadTimeout time.Duration
 	// JWT Conf
-	JWTSecretKey           string
-	JWTSecretExpire        int
-	JWTSecretRefreshExpire int
-	MessageAPIKey          string
-	Observability          ObservabilityConfig
+	JWTSecretKey             string
+	JWTRefreshTokenSecretKey string
+	JWTSecretExpire          int
+	JWTSecretRefreshExpire   int
+	MessageAPIKey            string
+	Observability            ObservabilityConfig
 }
 
 type ObservabilityConfig struct {
@@ -47,6 +48,7 @@ func loadApp() {
 	app.ReadTimeout = time.Duration(timeOut) * time.Second
 
 	app.JWTSecretKey = os.Getenv("JWT_SECRET_KEY")
+	app.JWTRefreshTokenSecretKey = os.Getenv("JWT_REFRESH_TOKEN_SECRET_KEY")
 	app.JWTSecretExpire, _ = strconv.Atoi(os.Getenv("AUTH_JWT_EXPIRY"))
 	app.JWTSecretRefreshExpire, _ = strconv.Atoi(os.Getenv("AUTH_JWT_REFRESH_EXPIRY"))
 }

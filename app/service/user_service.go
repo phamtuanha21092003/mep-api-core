@@ -3,8 +3,11 @@ package service
 import (
 	"context"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+
 	"github.com/phamtuanha21092003/mep-api-core/app/dto"
+	"github.com/phamtuanha21092003/mep-api-core/app/model"
 	"github.com/phamtuanha21092003/mep-api-core/app/repository"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/utils"
 	"github.com/phamtuanha21092003/mep-api-core/platform/logger"
@@ -17,11 +20,12 @@ type IUserService interface {
 
 type UserService struct {
 	userRepo repository.IUserRepository
+	tokenSer ITokenService
 	logger   *logger.Logger
 }
 
-func NewUserService(userRepo repository.IUserRepository, logger *logger.Logger) IUserService {
-	return &UserService{userRepo: userRepo, logger: logger}
+func NewUserService(userRepo repository.IUserRepository, tokenSer ITokenService, logger *logger.Logger) IUserService {
+	return &UserService{userRepo: userRepo, tokenSer: tokenSer, logger: logger}
 }
 
 func (userSer *UserService) Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error) {
@@ -48,5 +52,30 @@ func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto
 		return "", "", err
 	}
 
-	return user.ID.String(), user.Password, nil
+	roleID := ""
+	if user.RoleID.Valid {
+		roleID = user.RoleID.String
+	}
+	claim := &model.UserClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Subject: user.ID.String(),
+		},
+		Sub:          user.ID.String(),
+		Email:        user.Email,
+		Username:     user.Username,
+		RoleID:       roleID,
+		TokenVersion: user.TokenVersion,
+	}
+
+	accessToken, err := userSer.tokenSer.CreateUserToken(claim, utils.JWT_ACCESS_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err := userSer.tokenSer.CreateUserToken(claim, utils.JWT_REFRESH_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
