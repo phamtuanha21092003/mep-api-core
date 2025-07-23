@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -22,11 +23,27 @@ func init() {
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	var runApp = &cobra.Command{
-		Use:   "runserver [string to print]",
+	var runAppCmd = &cobra.Command{
+		Use:   "runserver",
 		Short: "Run gin app",
 		Run: func(cmd *cobra.Command, args []string) {
 			runGateway()
+		},
+	}
+
+	var runGrpcCmd = &cobra.Command{
+		Use:   "grpc [name ...]",
+		Short: "Run grpc app",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(args)
+		},
+	}
+
+	var syncPermCmd = &cobra.Command{
+		Use:   "sync-permissions",
+		Short: "Sync Gin routes as permissions into DB",
+		Run: func(cmd *cobra.Command, args []string) {
+			syncPermissions()
 		},
 	}
 
@@ -37,7 +54,7 @@ func main() {
 				This application is a tool to generate the needed files
 				to quickly create a Cobra application.`,
 	}
-	rootCmd.AddCommand(runApp)
+	rootCmd.AddCommand(runAppCmd, runGrpcCmd, syncPermCmd)
 	rootCmd.Execute()
 
 }
@@ -56,4 +73,20 @@ func runGateway() {
 	}
 
 	log.Println("Server exiting")
+}
+
+func syncPermissions() {
+	config.LoadAllConfig()
+
+	if database.SqlxConn == nil {
+		database.NewDatabaseConn()
+	}
+
+	server := server.NewServerSyncPermission(database.SqlxConn)
+	routes := server.GetRouters()
+
+	for _, route := range routes {
+		// perm := mapRouteToPermission(route.Method, route.Path)
+		fmt.Println("Syncing permission: %s %s", route.Method, route.Path)
+	}
 }

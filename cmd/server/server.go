@@ -90,5 +90,22 @@ func (server *Server) RunServer() error {
 
 func (server *Server) setupRoutes() {
 	router.GeneralRouter(server.gin)
-	router.UserRouter(server.gin, server.controllers.UserController)
+
+	router.AuthRouter(server.gin, server.controllers.UserController)
+
+	router.UserRouter(server.gin)
+
+	router.EventRouter(server.gin)
+}
+
+func NewServerSyncPermission(db *database.SqlxDatabase) *Server {
+	server := NewServer(db)
+
+	server.setupRoutes()
+
+	return server
+}
+
+func (s *Server) GetRouters() gin.RoutesInfo {
+	return s.gin.Routes()
 }

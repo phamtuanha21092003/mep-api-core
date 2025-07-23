@@ -1,3 +1,3 @@
 package main
 
-// processing: move all to grpc microservice
+// processing: redesign database role and permission and cli sync permission from url
