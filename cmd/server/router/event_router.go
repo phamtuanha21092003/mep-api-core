@@ -7,6 +7,6 @@ import (
 func EventRouter(app *gin.Engine) {
 	eventGroup := app.Group("/api/v1/event")
 
-	eventGroup.GET("/")
+	eventGroup.GET("/:eventId")
 	eventGroup.POST("/")
 }

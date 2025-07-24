@@ -1,9 +1,9 @@
-ALTER TABLE "user" ADD role_id INTEGER;
+ALTER TABLE "user" ADD role_id uuid;
 
 CREATE INDEX idx_user_role_id ON "user" (role_id) WHERE deleted_at IS NULL;
 
 CREATE TABLE role (
-    id SERIAL PRIMARY KEY NOT NULL,
+  	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
@@ -22,15 +22,15 @@ CREATE TABLE permission (
     created_by UUID NOT NULL,
     deleted_by UUID,
     name varchar(255) NOT NULL,
-    method varchar(5) NOT NULL,
-    url varchar(255) NOT NULL
+    level INT NOT NULL,
+    description varchar(255) NOT NULL
 );
 
 CREATE UNIQUE INDEX idx_permission_name_unique ON permission (name) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX idx_permission_method_url_unique ON permission (method, url) WHERE deleted_at IS NULL;
+CREATE INDEX idx_permission_level ON permission(level);
 
 CREATE TABLE role_permission (
-  role_id INTEGER NOT NULL,
+  role_id uuid NOT NULL,
   permission_id INTEGER NOT NULL,
   PRIMARY KEY (role_id, permission_id)
 );

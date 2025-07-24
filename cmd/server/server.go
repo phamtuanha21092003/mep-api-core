@@ -21,6 +21,8 @@ import (
 	"github.com/phamtuanha21092003/mep-api-core/platform/logger"
 )
 
+var permissions []string
+
 type Server struct {
 	gin          *gin.Engine
 	sqlx         *database.SqlxDatabase
@@ -59,7 +61,7 @@ func (server *Server) RunServer() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	server.setupRoutes()
+	server.setupRoutes(false)
 
 	server.logger.Printf("Server running.....")
 	serverAddr := fmt.Sprintf("%s:%d", config.AppCfg().Host, config.AppCfg().Port)
@@ -88,7 +90,7 @@ func (server *Server) RunServer() error {
 	return srv.Shutdown(ctx)
 }
 
-func (server *Server) setupRoutes() {
+func (server *Server) setupRoutes(isFromSyncPermission bool) {
 	router.GeneralRouter(server.gin)
 
 	router.AuthRouter(server.gin, server.controllers.UserController)
@@ -101,11 +103,19 @@ func (server *Server) setupRoutes() {
 func NewServerSyncPermission(db *database.SqlxDatabase) *Server {
 	server := NewServer(db)
 
-	server.setupRoutes()
+	server.setupRoutes(true)
 
 	return server
 }
 
 func (s *Server) GetRouters() gin.RoutesInfo {
 	return s.gin.Routes()
+}
+
+func RegisterRoute(permission string, handle func(e *gin.Engine, contr dependencies.Controllers), e *gin.Engine, contr dependencies.Controllers, isFromSyncPermission bool) {
+	if isFromSyncPermission {
+		permissions = append(permissions, permission)
+	}
+
+	handle(e, contr)
 }

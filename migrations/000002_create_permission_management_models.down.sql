@@ -1,8 +1,9 @@
--- Drop indexes for permission
 DROP INDEX IF EXISTS idx_permission_name_unique;
-DROP INDEX IF EXISTS idx_permission_method_url_unique;
+DROP INDEX IF EXISTS idx_permission_level;
 
 DROP TABLE IF EXISTS permission;
+
+DROP TABLE IF EXISTS role_permission;
 
 DROP INDEX IF EXISTS idx_role_name_unique;
 

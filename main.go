@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/phamtuanha21092003/mep-api-core/cmd/server"
+	syncPermission "github.com/phamtuanha21092003/mep-api-core/cmd/sync_permission"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
 	"github.com/phamtuanha21092003/mep-api-core/platform/database"
 )
@@ -85,8 +86,5 @@ func syncPermissions() {
 	server := server.NewServerSyncPermission(database.SqlxConn)
 	routes := server.GetRouters()
 
-	for _, route := range routes {
-		// perm := mapRouteToPermission(route.Method, route.Path)
-		fmt.Println("Syncing permission: %s %s", route.Method, route.Path)
-	}
+	syncPermission.SyncPermission(database.SqlxConn, routes)
 }
