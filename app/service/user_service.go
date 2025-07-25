@@ -16,6 +16,7 @@ import (
 type IUserService interface {
 	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
 	Login(ctx context.Context, payload *dto.LoginUserDto) (string, string, error)
+	Refresh(ctx context.Context, refreshToken string) (string, string, error)
 }
 
 type UserService struct {
@@ -40,7 +41,6 @@ func (userSer *UserService) Register(ctx context.Context, payload *dto.RegisterU
 	return userSer.userRepo.Register(ctx, payload)
 }
 
-// TODO: generate access and refresh token use jwt
 func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto) (string, string, error) {
 	user, err := userSer.userRepo.GetUserLogin(ctx, payload.Email)
 	if err != nil {
@@ -73,6 +73,25 @@ func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto
 	}
 
 	refreshToken, err := userSer.tokenSer.CreateUserToken(claim, utils.JWT_REFRESH_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
+}
+
+func (userSer *UserService) Refresh(ctx context.Context, refreshToken string) (string, string, error) {
+	claim, err := userSer.tokenSer.VerifyUserToken(refreshToken, utils.JWT_REFRESH_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	accessToken, err := userSer.tokenSer.CreateUserToken(claim, utils.JWT_ACCESS_TOKEN)
+	if err != nil {
+		return "", "", err
+	}
+
+	refreshToken, err = userSer.tokenSer.CreateUserToken(claim, utils.JWT_REFRESH_TOKEN)
 	if err != nil {
 		return "", "", err
 	}

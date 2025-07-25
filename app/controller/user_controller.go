@@ -13,7 +13,10 @@ import (
 
 type IUserController interface {
 	Register() gin.HandlerFunc
+
 	Login() gin.HandlerFunc
+
+	Refresh() gin.HandlerFunc
 }
 
 type UserController struct {
@@ -71,7 +74,38 @@ func (userContr *UserController) Login() gin.HandlerFunc {
 		)
 
 		c.JSON(200, gin.H{
-			"userId": accessToken,
+			"access_token": accessToken,
+		})
+	}
+}
+
+func (userContr *UserController) Refresh() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		refreshToken, err := c.Cookie("refresh_token")
+		if err != nil {
+			c.Error(base.BadRequest(errors.New("refresh token not found")))
+			return
+		}
+
+		userSer := userContr.userSer
+		accessToken, refreshToken, err := userSer.Refresh(c.Request.Context(), refreshToken)
+		if err != nil {
+			c.Error(base.BadRequest(err))
+			return
+		}
+
+		c.SetCookie(
+			"refresh_token",
+			refreshToken,
+			60*60*24*30,
+			"/",
+			"",
+			true,
+			true,
+		)
+
+		c.JSON(200, gin.H{
+			"access_token": accessToken,
 		})
 	}
 }

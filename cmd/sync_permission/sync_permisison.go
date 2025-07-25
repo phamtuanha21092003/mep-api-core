@@ -8,7 +8,7 @@ import (
 	"github.com/phamtuanha21092003/mep-api-core/platform/database"
 )
 
-// TODO: thinking solution remove all permisison?gi
+// TODO: thinking solution remove all permisison?
 func SyncPermission(db *database.SqlxDatabase) {
 	permissions := []string{"collection.product.variant.image"}
 

@@ -14,6 +14,8 @@ import (
 type (
 	ITokenService interface {
 		CreateUserToken(claim *model.UserClaims, tokenType utils.TokenType) (string, error)
+
+		VerifyUserToken(token string, tokenType utils.TokenType) (*model.UserClaims, error)
 	}
 
 	TokenService struct {
@@ -43,4 +45,21 @@ func (tokenSer *TokenService) CreateUserToken(claim *model.UserClaims, tokenType
 	}
 
 	return token, nil
+}
+
+func (tokenSer *TokenService) VerifyUserToken(token string, tokenType utils.TokenType) (*model.UserClaims, error) {
+	var claim model.UserClaims
+
+	secret := []byte(config.AppCfg().JWTRefreshTokenSecretKey)
+
+	if tokenType == utils.JWT_ACCESS_TOKEN {
+		secret = []byte(config.AppCfg().JWTSecretKey)
+	}
+
+	_, err := jwt.ParseWithClaims(token, &claim, func(_ *jwt.Token) (any, error) { return secret, nil }, jwt.WithExpirationRequired())
+	if err != nil {
+		return nil, err
+	}
+
+	return &claim, nil
 }

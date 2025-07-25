@@ -11,4 +11,5 @@ func AuthRouter(app *gin.Engine, userController controller.IUserController) {
 
 	authGroup.POST("/register", userController.Register())
 	authGroup.POST("/login", userController.Login())
+	authGroup.POST("/refresh", userController.Refresh())
 }
