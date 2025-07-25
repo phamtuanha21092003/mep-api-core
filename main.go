@@ -83,8 +83,5 @@ func syncPermissions() {
 		database.NewDatabaseConn()
 	}
 
-	server := server.NewServerSyncPermission(database.SqlxConn)
-	routes := server.GetRouters()
-
-	syncPermission.SyncPermission(database.SqlxConn, routes)
+	syncPermission.SyncPermission(database.SqlxConn)
 }

@@ -19,7 +19,7 @@ CREATE TABLE permission (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
-    created_by UUID NOT NULL,
+    created_by UUID,
     deleted_by UUID,
     name varchar(255) NOT NULL,
     level INT NOT NULL,
