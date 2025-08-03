@@ -14,21 +14,21 @@ import (
 )
 
 type IUserRepository interface {
-	base.IBaseRepositorySqlx[model.User, uuid.UUID]
+	base.IBaseRepositorySqlx[model.UserModel, uuid.UUID]
 
 	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
 
-	GetUserLogin(ctx context.Context, email string) (*model.User, error)
+	GetUserLogin(ctx context.Context, email string) (*model.UserModel, error)
 }
 
 type UserRepository struct {
-	*base.BaseRepositorySqlx[model.User, uuid.UUID]
+	*base.BaseRepositorySqlx[model.UserModel, uuid.UUID]
 	logger *logger.Logger
 }
 
 func NewUserRepository(db *database.SqlxDatabase, logger *logger.Logger, transactionManagerSqlx base.ITransactionManagerSqlx) IUserRepository {
 	return &UserRepository{
-		BaseRepositorySqlx: base.NewBaseRepositorySqlx[model.User, uuid.UUID](db, "user", transactionManagerSqlx),
+		BaseRepositorySqlx: base.NewBaseRepositorySqlx[model.UserModel, uuid.UUID](db, "user", transactionManagerSqlx),
 		logger:             logger,
 	}
 }
@@ -55,10 +55,10 @@ func (userRepo *UserRepository) Register(ctx context.Context, payload *dto.Regis
 	})
 }
 
-func (userRepo *UserRepository) GetUserLogin(ctx context.Context, email string) (*model.User, error) {
-	query := `SELECT u.id, u.email, u.username,  u.password, u.role_id, u.token_version FROM "user" u WHERE u.email = $1;`
+func (userRepo *UserRepository) GetUserLogin(ctx context.Context, email string) (*model.UserModel, error) {
+	query := `SELECT u.id, u.email, u.username,  u.password, u.role_id, u.token_version, u.is_superuser FROM "user" u WHERE u.email = $1;`
 
-	var user model.User
+	var user model.UserModel
 	if err := userRepo.Sqlx.DB.GetContext(ctx, &user, query, email); err != nil {
 		return nil, err
 	}

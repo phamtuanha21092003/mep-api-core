@@ -138,7 +138,7 @@ func (userContr *UserController) VerifyPermissions(permissions []string) gin.Han
 			return
 		}
 
-		if len(permissions) == 0 {
+		if len(permissions) == 0 || claim.IsSuperuser {
 			c.Next()
 		}
 

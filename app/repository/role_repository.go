@@ -15,19 +15,19 @@ import (
 )
 
 type IRoleRepository interface {
-	base.IBaseRepositorySqlx[model.User, uuid.UUID]
+	base.IBaseRepositorySqlx[model.UserModel, uuid.UUID]
 
 	IsHavePermission(ctx context.Context, roleID uuid.UUID, permissions []string) (bool, error)
 }
 
 type RoleRepository struct {
-	*base.BaseRepositorySqlx[model.User, uuid.UUID]
+	*base.BaseRepositorySqlx[model.UserModel, uuid.UUID]
 	logger *logger.Logger
 }
 
 func NewRoleRepository(db *database.SqlxDatabase, logger *logger.Logger, transactionManagerSqlx base.ITransactionManagerSqlx) IRoleRepository {
 	return &RoleRepository{
-		BaseRepositorySqlx: (*base.BaseRepositorySqlx[model.User, uuid.UUID])(base.NewBaseRepositorySqlx[model.RoleModel, uuid.UUID](db, "role", transactionManagerSqlx)),
+		BaseRepositorySqlx: (*base.BaseRepositorySqlx[model.UserModel, uuid.UUID])(base.NewBaseRepositorySqlx[model.RoleModel, uuid.UUID](db, "role", transactionManagerSqlx)),
 		logger:             logger,
 	}
 }

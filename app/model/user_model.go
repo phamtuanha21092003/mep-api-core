@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	User struct {
+	UserModel struct {
 		base.BaseModel[uuid.UUID]
 		Password     string     `db:"password"     	json:"-"`
 		DeletedAt    *time.Time `db:"deleted_at"   	json:"deleted_at,omitempty"`

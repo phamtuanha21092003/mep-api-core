@@ -63,6 +63,7 @@ func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto
 		Username:     user.Username,
 		RoleID:       user.RoleID,
 		TokenVersion: user.TokenVersion,
+		IsSuperuser:  user.IsSuperuser,
 	}
 
 	accessToken, err := userSer.tokenSer.CreateUserToken(claim, utils.JWT_ACCESS_TOKEN)

@@ -13,5 +13,6 @@ type (
 		Username     string     `json:"username"`
 		RoleID       *uuid.UUID `json:"role_id,omitempty"`
 		TokenVersion int        `json:"token_version"`
+		IsSuperuser  bool       `json:"is_superuser"`
 	}
 )
