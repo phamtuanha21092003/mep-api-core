@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -564,4 +565,56 @@ func (e *SqlxDatabase) getTableColumns(tableName string) ([]*Columns, error) {
 		columnDB[tableName] = listColumn
 	}
 	return listColumn, nil
+}
+
+// BuildSQLJoinValues accepts a slice of structs or primitives.
+// If fieldNames is empty → treat slice as primitive (e.g. []string).
+// If fieldNames is not empty → treat slice as []struct with those fields.
+//
+// Returns: VALUES string and flattened args slice. startAt is the current placeholder index. could use in next query.
+func (e *SqlxDatabase) BuildSQLJoinValues(slice any, fieldNames []string, startAt *int) (string, []any, error) {
+	v := reflect.ValueOf(slice)
+	if v.Kind() != reflect.Slice {
+		return "", nil, fmt.Errorf("input must be a slice")
+	}
+	if v.Len() == 0 {
+		return "", nil, fmt.Errorf("empty slice not allowed")
+	}
+
+	var (
+		placeholders []string
+		args         []any
+	)
+
+	for i := 0; i < v.Len(); i++ {
+		elem := v.Index(i)
+		if elem.Kind() == reflect.Ptr {
+			elem = elem.Elem()
+		}
+
+		if len(fieldNames) == 0 {
+			args = append(args, elem.Interface())
+			placeholders = append(placeholders, fmt.Sprintf("($%d)", *startAt))
+			*startAt++
+			continue
+		}
+
+		if elem.Kind() != reflect.Struct {
+			return "", nil, fmt.Errorf("expected struct elements for fieldNames")
+		}
+
+		var rowPlaceholders []string
+		for _, field := range fieldNames {
+			f := elem.FieldByName(field)
+			if !f.IsValid() {
+				return "", nil, fmt.Errorf("field %s not found in struct", field)
+			}
+			args = append(args, f.Interface())
+			rowPlaceholders = append(rowPlaceholders, fmt.Sprintf("$%d", *startAt))
+			*startAt++
+		}
+		placeholders = append(placeholders, fmt.Sprintf("(%s)", strings.Join(rowPlaceholders, ", ")))
+	}
+
+	return strings.Join(placeholders, ", "), args, nil
 }

@@ -2,10 +2,12 @@ package controller
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"github.com/phamtuanha21092003/mep-api-core/app/base"
+	"github.com/phamtuanha21092003/mep-api-core/app/common"
 	"github.com/phamtuanha21092003/mep-api-core/app/dto"
 	"github.com/phamtuanha21092003/mep-api-core/app/service"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/utils"
@@ -17,14 +19,20 @@ type IUserController interface {
 	Login() gin.HandlerFunc
 
 	Refresh() gin.HandlerFunc
+
+	VerifyPermissions(permissions []string) gin.HandlerFunc
 }
 
 type UserController struct {
 	userSer service.IUserService
+
+	tokenSer service.ITokenService
+
+	roleSer service.IRoleService
 }
 
-func NewUserController(userSer service.IUserService) IUserController {
-	return &UserController{userSer: userSer}
+func NewUserController(userSer service.IUserService, tokenSer service.ITokenService, roleSer service.IRoleService) IUserController {
+	return &UserController{userSer: userSer, tokenSer: tokenSer, roleSer: roleSer}
 }
 
 func (userContr *UserController) Register() gin.HandlerFunc {
@@ -107,5 +115,58 @@ func (userContr *UserController) Refresh() gin.HandlerFunc {
 		c.JSON(200, gin.H{
 			"access_token": accessToken,
 		})
+	}
+}
+
+func (userContr *UserController) VerifyPermissions(permissions []string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		accessToken, err := common.ValidateExtractToken(c)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "forbidden",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		claim, err := userContr.tokenSer.VerifyUserToken(accessToken, utils.JWT_ACCESS_TOKEN)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "forbidden",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		if len(permissions) == 0 {
+			c.Next()
+		}
+
+		if claim.RoleID == nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "forbidden",
+				"error":   "Permission is not allow",
+			})
+			return
+		}
+
+		isHavePermission, err := userContr.roleSer.VerifyPermission(c.Request.Context(), *claim.RoleID, permissions)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "forbidden",
+				"error":   err.Error(),
+			})
+			return
+		}
+
+		if isHavePermission == false {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"message": "forbidden",
+				"error":   "Permission is not allow",
+			})
+			return
+		}
+
+		c.Next()
 	}
 }

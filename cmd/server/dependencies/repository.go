@@ -9,10 +9,14 @@ import (
 
 type Repositories struct {
 	userRepo repository.IUserRepository
+
+	roleRepo repository.IRoleRepository
 }
 
 func InitRepositories(db *database.SqlxDatabase, logger *logger.Logger, transactionManagerSqlx base.ITransactionManagerSqlx) *Repositories {
 	return &Repositories{
 		userRepo: repository.NewUserRepository(db, logger, transactionManagerSqlx),
+
+		roleRepo: repository.NewRoleRepository(db, logger, transactionManagerSqlx),
 	}
 }

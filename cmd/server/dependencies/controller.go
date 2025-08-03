@@ -8,6 +8,6 @@ type Controllers struct {
 
 func InitController(service *Services) *Controllers {
 	return &Controllers{
-		UserController: controller.NewUserController(service.userService),
+		UserController: controller.NewUserController(service.userSer, service.tokenSer, service.roleSer),
 	}
 }

@@ -15,7 +15,9 @@ import (
 
 type IUserRepository interface {
 	base.IBaseRepositorySqlx[model.User, uuid.UUID]
+
 	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
+
 	GetUserLogin(ctx context.Context, email string) (*model.User, error)
 }
 

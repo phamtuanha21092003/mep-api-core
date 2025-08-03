@@ -15,7 +15,9 @@ import (
 
 type IUserService interface {
 	Register(ctx context.Context, payload *dto.RegisterUserDto) (any, error)
+
 	Login(ctx context.Context, payload *dto.LoginUserDto) (string, string, error)
+
 	Refresh(ctx context.Context, refreshToken string) (string, string, error)
 }
 
@@ -52,10 +54,6 @@ func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto
 		return "", "", err
 	}
 
-	roleID := ""
-	if user.RoleID.Valid {
-		roleID = user.RoleID.String
-	}
 	claim := &model.UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject: user.ID.String(),
@@ -63,7 +61,7 @@ func (userSer *UserService) Login(ctx context.Context, payload *dto.LoginUserDto
 		Sub:          user.ID.String(),
 		Email:        user.Email,
 		Username:     user.Username,
-		RoleID:       roleID,
+		RoleID:       user.RoleID,
 		TokenVersion: user.TokenVersion,
 	}
 
