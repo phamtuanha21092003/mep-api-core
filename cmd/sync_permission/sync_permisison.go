@@ -10,7 +10,7 @@ import (
 
 // TODO: thinking solution remove all permisison?
 func SyncPermission(db *database.SqlxDatabase) {
-	permissions := []string{"collection.product.variant.image"}
+	permissions := []string{"file"}
 
 	for _, permission := range permissions {
 		if err := insertPermissionsRecursively(db, permission); err != nil {

@@ -61,7 +61,7 @@ func (server *Server) RunServer() error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	server.setupRoutes(false)
+	server.setupRoutes()
 
 	server.logger.Printf("Server running.....")
 	serverAddr := fmt.Sprintf("%s:%d", config.AppCfg().Host, config.AppCfg().Port)
@@ -90,7 +90,7 @@ func (server *Server) RunServer() error {
 	return srv.Shutdown(ctx)
 }
 
-func (server *Server) setupRoutes(isFromSyncPermission bool) {
+func (server *Server) setupRoutes() {
 	router.GeneralRouter(server.gin)
 
 	router.AuthRouter(server.gin, server.controllers.UserController)
@@ -98,24 +98,4 @@ func (server *Server) setupRoutes(isFromSyncPermission bool) {
 	router.UserRouter(server.gin)
 
 	router.EventRouter(server.gin)
-}
-
-func NewServerSyncPermission(db *database.SqlxDatabase) *Server {
-	server := NewServer(db)
-
-	server.setupRoutes(true)
-
-	return server
-}
-
-func (s *Server) GetRouters() gin.RoutesInfo {
-	return s.gin.Routes()
-}
-
-func RegisterRoute(permission string, handle func(e *gin.Engine, contr dependencies.Controllers), e *gin.Engine, contr dependencies.Controllers, isFromSyncPermission bool) {
-	if isFromSyncPermission {
-		permissions = append(permissions, permission)
-	}
-
-	handle(e, contr)
 }
