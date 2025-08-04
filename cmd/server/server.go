@@ -93,9 +93,7 @@ func (server *Server) RunServer() error {
 func (server *Server) setupRoutes() {
 	router.GeneralRouter(server.gin)
 
-	router.AuthRouter(server.gin, server.controllers.UserController)
+	router.AuthRouter(server.gin, server.controllers.UserContr)
 
-	router.UserRouter(server.gin)
-
-	router.EventRouter(server.gin)
+	router.FileRouter(server.gin, server.controllers)
 }

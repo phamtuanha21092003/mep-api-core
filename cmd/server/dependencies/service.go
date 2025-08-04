@@ -11,6 +11,8 @@ type Services struct {
 	tokenSer service.ITokenService
 
 	roleSer service.IRoleService
+
+	tusSer service.ITusService
 }
 
 func InitServices(repo *Repositories, logger *logger.Logger) *Services {
@@ -22,5 +24,7 @@ func InitServices(repo *Repositories, logger *logger.Logger) *Services {
 		tokenSer: tokenSvc,
 
 		roleSer: service.NewRoleService(repo.roleRepo, logger),
+
+		tusSer: service.NewTusService(),
 	}
 }

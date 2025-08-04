@@ -3,11 +3,15 @@ package dependencies
 import "github.com/phamtuanha21092003/mep-api-core/app/controller"
 
 type Controllers struct {
-	UserController controller.IUserController
+	UserContr controller.IUserController
+
+	TusContr controller.ITusController
 }
 
 func InitController(service *Services) *Controllers {
 	return &Controllers{
-		UserController: controller.NewUserController(service.userSer, service.tokenSer, service.roleSer),
+		UserContr: controller.NewUserController(service.userSer, service.tokenSer, service.roleSer),
+
+		TusContr: controller.NewTusController(service.tusSer),
 	}
 }
