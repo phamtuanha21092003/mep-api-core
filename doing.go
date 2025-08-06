@@ -1,5 +1,5 @@
 package main
 
-// processing: case is supper user is have all permission
-// save to redis use bitmap
-//
+// processing: move upload file to one service then call verify permission user grpc
+// init base grpc with go
+// upload service user tus server and http only

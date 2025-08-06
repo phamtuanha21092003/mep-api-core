@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input type="file" id="uploadInput" />
+    <button onclick="upload()">Upload</button>
+    <progress id="progress" value="0" max="100"></progress>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/tus-js-client@latest/dist/tus.js"></script>
+  <script>
+    function upload() {
+      const file = document.getElementById("uploadInput").files[0]
+      if (!file) return alert("Please choose a file.")
+
+      const upload = new tus.Upload(file, {
+        endpoint: "http://localhost:8080/api/v1/files/tus/",
+        chunkSize: 5 * 1024 * 1024,
+        metadata: {
+          filename: file.name,
+          filetype: file.type,
+        },
+        headers: {
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ1NDQxMTgsImlhdCI6MTc1NDQ1NzcxOCwic3ViIjoiYWVjNDNjYzItMjAxNS00YTk0LWJlYTUtYzk2MzdmNjQ5YThmIiwiZW1haWwiOiJhZG1pbiIsInVzZXJuYW1lIjoiYWRtaW4iLCJ0b2tlbl92ZXJzaW9uIjowLCJpc19zdXBlcnVzZXIiOnRydWV9.6sChGYYMO1AYztxaY_pIeSJFykjERHRI_rL6fXfur24`,
+        },
+        onError: function (error) {
+          console.error("Upload failed:", error)
+        },
+        onProgress: function (bytesUploaded, bytesTotal) {
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2)
+          document.getElementById("progress").value = percentage
+          console.log(`${bytesUploaded}/${bytesTotal} (${percentage}%)`)
+        },
+        onSuccess: function () {
+          console.log("Upload finished:", upload.url)
+          alert("Upload complete!")
+        },
+      })
+
+      upload.start()
+
+      upload.on("progress", (bytesUploaded, bytesTotal) => {
+        console.log(`${bytesUploaded}/${bytesTotal} (${((bytesUploaded / bytesTotal) * 100).toFixed(2)}%)`)
+      })
+    }
+  </script>
+</html>

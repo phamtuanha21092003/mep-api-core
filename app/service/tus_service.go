@@ -25,9 +25,11 @@ func (s *tusService) BuildHandler() (*tusd.Handler, error) {
 	store.UseIn(composer)
 
 	config := tusd.Config{
-		BasePath:              "/files/",
-		StoreComposer:         composer,
-		NotifyCompleteUploads: true,
+		BasePath:                "/api/v1/files/tus/",
+		StoreComposer:           composer,
+		NotifyCompleteUploads:   true,
+		NotifyTerminatedUploads: true,
+		NotifyUploadProgress:    true,
 	}
 
 	return tusd.NewHandler(config)

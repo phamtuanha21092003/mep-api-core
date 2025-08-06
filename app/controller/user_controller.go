@@ -140,6 +140,7 @@ func (userContr *UserController) VerifyPermissions(permissions []string) gin.Han
 
 		if len(permissions) == 0 || claim.IsSuperuser {
 			c.Next()
+			return
 		}
 
 		if claim.RoleID == nil {
