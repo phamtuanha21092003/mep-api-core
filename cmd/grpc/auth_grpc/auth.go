@@ -13,8 +13,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-func Run(ctx context.Context) {
-	serverAddr := fmt.Sprintf("%s:%d", config.AppCfg().Host, config.AppCfg().AuthPort)
+func Run(ctx context.Context, name string) {
+	serverAddr := fmt.Sprintf("%s:%d", config.AppGrpcCfg().Host, config.AppGrpcCfg().AuthPort)
 
 	listener, err := net.Listen("tcp", serverAddr)
 	if err != nil {

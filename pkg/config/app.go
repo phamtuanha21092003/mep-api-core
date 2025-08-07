@@ -15,7 +15,6 @@ type App struct {
 	Environment string
 	Debug       bool
 	ReadTimeout time.Duration
-	AuthPort    int
 	// JWT Conf
 	JWTSecretKey             string
 	JWTRefreshTokenSecretKey string
@@ -47,10 +46,28 @@ func loadApp() {
 	app.Debug, _ = strconv.ParseBool(os.Getenv("APP_DEBUG"))
 	timeOut, _ := strconv.Atoi(os.Getenv("APP_READ_TIMEOUT"))
 	app.ReadTimeout = time.Duration(timeOut) * time.Second
-	app.AuthPort, _ = strconv.Atoi(os.Getenv("AUTH_PORT"))
 
 	app.JWTSecretKey = os.Getenv("JWT_SECRET_KEY")
 	app.JWTRefreshTokenSecretKey = os.Getenv("JWT_REFRESH_TOKEN_SECRET_KEY")
 	app.JWTSecretExpire, _ = strconv.Atoi(os.Getenv("AUTH_JWT_EXPIRY"))
 	app.JWTSecretRefreshExpire, _ = strconv.Atoi(os.Getenv("AUTH_JWT_REFRESH_EXPIRY"))
+}
+
+type AppGrpc struct {
+	Host        string
+	Environment string
+	AuthPort    int
+}
+
+var appGrpc = &AppGrpc{}
+
+func AppGrpcCfg() *AppGrpc {
+	return appGrpc
+}
+
+func loadGrpc() {
+	appGrpc.Environment = os.Getenv("APP_ENV")
+	appGrpc.Host = os.Getenv("APP_HOST")
+	appGrpc.AuthPort, _ = strconv.Atoi(os.Getenv("AUTH_PORT"))
+
 }

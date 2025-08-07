@@ -40,7 +40,11 @@ func main() {
 		Use:   "grpc [name ...]",
 		Short: "Run grpc app",
 		Run: func(cmd *cobra.Command, args []string) {
-			config.LoadAllConfig()
+			config.LoadAllConfigGrpc()
+
+			if database.SqlxConn == nil {
+				database.NewDatabaseConn()
+			}
 
 			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 			defer stop()
@@ -49,7 +53,7 @@ func main() {
 				log.Fatal("Please provide a gRPC service name or 'all'")
 			}
 
-			services := map[string]func(context.Context){
+			services := map[string]func(context.Context, string){
 				"auth": authGrpc.Run,
 			}
 
@@ -58,14 +62,14 @@ func main() {
 			}
 
 			// all only for development
-			if len(args) == 1 && config.AppCfg().Environment == "dev" && args[0] == "all" {
+			if len(args) == 1 && config.AppGrpcCfg().Environment == "dev" && args[0] == "all" {
 				var wg sync.WaitGroup
 				for name, run := range services {
 					wg.Add(1)
-					go func(name string, runFunc func(context.Context)) {
+					go func(name string, runFunc func(context.Context, string)) {
 						defer wg.Done()
 						log.Printf("🚀 Starting gRPC service: %s", name)
-						runFunc(ctx)
+						runFunc(ctx, name)
 					}(name, run)
 				}
 				wg.Wait()
@@ -78,7 +82,7 @@ func main() {
 					log.Fatalf("❌ Unknown service: %s", name)
 				}
 				log.Printf("🚀 Starting gRPC service: %s", name)
-				run(ctx)
+				run(ctx, name)
 			}
 		},
 	}
@@ -105,7 +109,7 @@ func main() {
 
 // run gateway is run server
 func runGateway() {
-	config.LoadAllConfig()
+	config.LoadAllConfigServer()
 
 	if database.SqlxConn == nil {
 		database.NewDatabaseConn()
@@ -120,7 +124,7 @@ func runGateway() {
 }
 
 func syncPermissions() {
-	config.LoadAllConfig()
+	config.LoadAllConfigServer()
 
 	if database.SqlxConn == nil {
 		database.NewDatabaseConn()

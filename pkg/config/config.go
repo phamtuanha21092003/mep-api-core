@@ -29,7 +29,12 @@ func (config *Config) setDefault() {
 	config.SetDefault("MIDDLEWARE_GIN_LOGGING_ENABLED", true)
 }
 
-func LoadAllConfig() {
+func LoadAllConfigServer() {
 	loadDbConfig()
 	loadApp()
+}
+
+func LoadAllConfigGrpc() {
+	loadDbConfig()
+	loadGrpc()
 }
