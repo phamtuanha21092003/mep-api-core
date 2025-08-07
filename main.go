@@ -1,13 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 
+	authGrpc "github.com/phamtuanha21092003/mep-api-core/cmd/grpc/auth_grpc"
 	"github.com/phamtuanha21092003/mep-api-core/cmd/server"
 	syncPermission "github.com/phamtuanha21092003/mep-api-core/cmd/sync_permission"
 	"github.com/phamtuanha21092003/mep-api-core/pkg/config"
@@ -36,7 +40,46 @@ func main() {
 		Use:   "grpc [name ...]",
 		Short: "Run grpc app",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(args)
+			config.LoadAllConfig()
+
+			ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+			defer stop()
+
+			if len(args) == 0 {
+				log.Fatal("Please provide a gRPC service name or 'all'")
+			}
+
+			services := map[string]func(context.Context){
+				"auth": authGrpc.Run,
+			}
+
+			if len(args) == 0 {
+				log.Fatal("Please provide a gRPC service name or 'all'")
+			}
+
+			// all only for development
+			if len(args) == 1 && config.AppCfg().Environment == "dev" && args[0] == "all" {
+				var wg sync.WaitGroup
+				for name, run := range services {
+					wg.Add(1)
+					go func(name string, runFunc func(context.Context)) {
+						defer wg.Done()
+						log.Printf("🚀 Starting gRPC service: %s", name)
+						runFunc(ctx)
+					}(name, run)
+				}
+				wg.Wait()
+				return
+			}
+
+			for _, name := range args {
+				run, exists := services[name]
+				if !exists {
+					log.Fatalf("❌ Unknown service: %s", name)
+				}
+				log.Printf("🚀 Starting gRPC service: %s", name)
+				run(ctx)
+			}
 		},
 	}
 

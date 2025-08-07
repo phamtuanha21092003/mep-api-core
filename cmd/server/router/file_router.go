@@ -18,8 +18,6 @@ func FileRouter(app *gin.Engine, contr dependencies.Controllers) {
 
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
 
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Authorization, X-Requested-With, X-Request-ID, X-HTTP-Method-Override, Upload-Length, Upload-Offset, Tus-Resumable, Upload-Metadata, Upload-Defer-Length, Upload-Concat, User-Agent, Referrer, Origin, Content-Type, Content-Length")
-
 		c.Writer.Header().Set("Access-Control-Expose-Headers", "Upload-Offset, Location, Upload-Length, Tus-Version, Tus-Resumable, Tus-Max-Size, Tus-Extension, Upload-Metadata, Upload-Defer-Length, Upload-Concat")
 
 		c.Next()

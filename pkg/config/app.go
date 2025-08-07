@@ -15,6 +15,7 @@ type App struct {
 	Environment string
 	Debug       bool
 	ReadTimeout time.Duration
+	AuthPort    int
 	// JWT Conf
 	JWTSecretKey             string
 	JWTRefreshTokenSecretKey string
@@ -46,6 +47,7 @@ func loadApp() {
 	app.Debug, _ = strconv.ParseBool(os.Getenv("APP_DEBUG"))
 	timeOut, _ := strconv.Atoi(os.Getenv("APP_READ_TIMEOUT"))
 	app.ReadTimeout = time.Duration(timeOut) * time.Second
+	app.AuthPort, _ = strconv.Atoi(os.Getenv("AUTH_PORT"))
 
 	app.JWTSecretKey = os.Getenv("JWT_SECRET_KEY")
 	app.JWTRefreshTokenSecretKey = os.Getenv("JWT_REFRESH_TOKEN_SECRET_KEY")
