@@ -1,6 +1,6 @@
 module github.com/phamtuanha21092003/mep-api-core
 
-go 1.24.3
+go 1.24.6
 
 require (
 	github.com/simukti/sqldb-logger/logadapter/zerologadapter v0.0.0-20230108155151-646c1a075551
@@ -56,6 +56,7 @@ require (
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/simukti/sqldb-logger v0.0.0-20230108155151-646c1a075551 // indirect
 	github.com/spf13/viper v1.20.1
+	github.com/tus/tusd v1.13.0
 	github.com/tus/tusd/v2 v2.8.0
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect

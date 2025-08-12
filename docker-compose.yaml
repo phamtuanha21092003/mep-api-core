@@ -28,6 +28,8 @@ services:
       dockerfile: ./cmd/server/Dockerfile
     ports:
       - "8080:8080"
+    expose:
+      - 8080
     environment:
       - APP_HOST=0.0.0.0
       - APP_PORT=8080
@@ -73,3 +75,24 @@ services:
         /usr/bin/mc mb minio/my-bucket;
         /usr/bin/mc anonymous set public minio/my-bucket;
         exit 0;
+
+  # run in development comment command statement
+  tusd:
+    image: tusproject/tusd:sha-5ced87c
+    command: >
+      -host 0.0.0.0
+      -port 8000
+      -behind-proxy
+      -hooks-http http://gateway:8080/api/v1/hooks/tus
+      -s3-bucket my-bucket
+      -s3-endpoint http://minio:9000
+      -hooks-enabled-events pre-create
+      -base-path /api/files
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=minio@123456
+      - AWS_REGION=eu-west-1
+    volumes:
+      - ./data/tusd:/data

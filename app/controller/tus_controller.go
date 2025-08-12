@@ -3,17 +3,16 @@ package controller
 import (
 	"encoding/base64"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/gin-gonic/gin"
+	tusd "github.com/tus/tusd/v2/pkg/handler"
 
 	"github.com/phamtuanha21092003/mep-api-core/app/service"
 )
 
 type ITusController interface {
-	Handler() gin.HandlerFunc
+	Handler() *tusd.UnroutedHandler
 }
 
 type tusController struct {
@@ -24,7 +23,7 @@ func NewTusController(tusSer service.ITusService) ITusController {
 	return &tusController{tusSer: tusSer}
 }
 
-func (contr *tusController) Handler() gin.HandlerFunc {
+func (contr *tusController) Handler() *tusd.UnroutedHandler {
 	handler, err := contr.tusSer.BuildHandler()
 	if err != nil {
 		panic("failed to build TUS handler: " + err.Error())
@@ -83,5 +82,5 @@ func (contr *tusController) Handler() gin.HandlerFunc {
 		}
 	}()
 
-	return gin.WrapH(http.StripPrefix("/api/v1/files/tus/", handler))
+	return handler
 }

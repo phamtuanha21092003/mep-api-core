@@ -6,7 +6,7 @@ import (
 )
 
 type ITusService interface {
-	BuildHandler() (*tusd.Handler, error)
+	BuildHandler() (*tusd.UnroutedHandler, error)
 }
 
 type tusService struct {
@@ -16,7 +16,7 @@ func NewTusService() ITusService {
 	return &tusService{}
 }
 
-func (s *tusService) BuildHandler() (*tusd.Handler, error) {
+func (s *tusService) BuildHandler() (*tusd.UnroutedHandler, error) {
 	store := filestore.FileStore{
 		Path: "./uploads",
 	}
@@ -32,5 +32,5 @@ func (s *tusService) BuildHandler() (*tusd.Handler, error) {
 		NotifyUploadProgress:    true,
 	}
 
-	return tusd.NewHandler(config)
+	return tusd.NewUnroutedHandler(config)
 }
