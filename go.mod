@@ -1,6 +1,6 @@
 module github.com/phamtuanha21092003/mep-api-core
 
-go 1.24.6
+go 1.25.0
 
 require (
 	github.com/simukti/sqldb-logger/logadapter/zerologadapter v0.0.0-20230108155151-646c1a075551
