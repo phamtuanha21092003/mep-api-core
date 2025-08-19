@@ -69,5 +69,4 @@ func loadGrpc() {
 	appGrpc.Environment = os.Getenv("APP_ENV")
 	appGrpc.Host = os.Getenv("APP_HOST")
 	appGrpc.AuthPort, _ = strconv.Atoi(os.Getenv("AUTH_PORT"))
-
 }

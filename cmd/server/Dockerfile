@@ -1,4 +1,4 @@
-FROM golang:1.25-rc-bookworm AS deps
+FROM golang:1.25.0-bookworm AS deps
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-FROM golang:1.25-rc-bookworm AS builder
+FROM golang:1.25.0-bookworm AS builder
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ FROM debian:bookworm-slim
 WORKDIR /app
 
 COPY --from=builder /app/mep-api-core .
-COPY bin bin
+COPY bin/start_server.sh bin/start_server.sh
 
 RUN chmod +x /app/bin/start_server.sh
 
